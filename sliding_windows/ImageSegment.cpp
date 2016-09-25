@@ -3,9 +3,6 @@
 std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
 {
 	pos2d p1(0,0);
-	pos2d p2(0,0);
-	pos2d p3(0,0);
-	pos2d p4(0,0);
 
 	std::vector<pos2d> segmentPos;
 
@@ -29,21 +26,15 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			{
 				p1.r = r;
 				p1.c = c;
-				p2.r = r;
-				p2.c = c;
-				p3.r = r;
-				p3.c = c;
-				p4.r = r;
-				p4.c = c;
 				break;
 			}
 		}
 	}
 
 	rBoundLine.push_back(p1);
-	lBoundLine.push_back(p2);
-	tBoundLine.push_back(p3);
-	bBoundLine.push_back(p4);
+	lBoundLine.push_back(p1);
+	tBoundLine.push_back(p1);
+	bBoundLine.push_back(p1);
 
 	while (isBoxed = false)
 	{
@@ -55,14 +46,14 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) == 0)
 					rightBound = true;
 			}
-			tBoundLine.push_back(rBoundLine.back());
-			bBoundLine.push_back(pos2d (bBoundLine[0].r, p1.c));									 
+			tBoundLine.push_back(rBoundLine.front());
+			bBoundLine.push_back(rBoundLine.back());									 
 			for (pos2d& d : rBoundLine)			  
 				d.c += 1;
 		}
 		while (bottomBound = false)
 		{
-			p2.r++;
+			//p2.r++;
 			if (img.at<uint8_t>(p2.r, p2.c) != 0)
 				bottomBound = true;
 			rBoundLine.push_back(pos2d(p2.r, rBoundLine[0].c));
@@ -72,7 +63,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		}
 		while (leftBound = false)
 		{
-			p3.c--;								  // move ref point one column to the right
+			//p3.c--;								  // move ref point one column to the right
 			if (img.at<uint8_t>(p3.r, p3.c) != 0) // if ref pixel is white, set rightBound to true
 				leftBound = true;
 			tBoundLine.insert(tBoundLine.begin(), pos2d (tBoundLine[0].r, p3.c));
@@ -82,7 +73,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		}
 		while (topBound = false)
 		{
-			p4.r--;								  // move ref point one column to the right
+			//p4.r--;								  // move ref point one column to the right
 			if (img.at<uint8_t>(p4.r, p4.c) != 0) // if ref pixel is white, set rightBound to true
 				topBound = true;
 			rBoundLine.insert(rBoundLine.begin(), pos2d(p4.r, rBoundLine[0].c));
