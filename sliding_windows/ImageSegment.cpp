@@ -6,7 +6,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 
 	std::vector<pos2d> segmentPos;  // container for bounding box positions
 
-	const int threshold_val = 12;
+	const int threshold_val = 20;
 
 	bool isBoxed = false;
 	bool rightBound = false;
@@ -14,21 +14,23 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	bool bottomBound = false;
 	bool topBound = false;
 
+	bool start = false;
+
 	std::vector<pos2d> rBoundLine;		// container for right bouding line
 	std::vector<pos2d> lBoundLine;		// container for left bounding line
 	std::vector<pos2d> tBoundLine;		// container for bottom bounding line
 	std::vector<pos2d> bBoundLine;		// container for top bounding line
 
 	// iterate through image and set p1 to position first detected black pixel
-	for (int r = 0; r < rows; r++)
+	for (int r = 0; r < rows && !start; r++)
 	{
-		for (int c = 0; c < cols; c++)
+		for (int c = 0; c < cols && !start; c++)
 		{
 			if (img.at<uint8_t>(r, c) <= threshold_val)
 			{
 				p1.r = r;
 				p1.c = c;
-				break;
+				start = true;
 			}
 		}
 	}
@@ -45,51 +47,89 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	{
 		// if rightBound is not true
 		while (rightBound == false)
-		{							 
+		{		
+			rightBound = true;
 			// loop through right bound line positions and increase column number by one. 
-			for (int i = 0; i < rBoundLine.size(); i++)
+			for (int i = 0; i < rBoundLine.size(); i++)  // EDIT: possibly make more efficient. 
 			{
-				rBoundLine[i].c++;
+				(rBoundLine[i].c)++;
+				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) <= threshold_val)
+					rightBound = false;
 			}
+			/*for (int i = 0; i < rBoundLine.size(); i++)
+			{
+				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) <= threshold_val)
+				{
+					rightBound = false;
+					break;
+				}
+			}*/
 			tBoundLine.push_back(rBoundLine.front());
 			bBoundLine.push_back(rBoundLine.back());									 
 		}
 
 		while (bottomBound == false)
 		{
+			bottomBound = true;
 			// loop through bottom bound line positions and increase row number by one. 
 			for (int i = 0; i < bBoundLine.size(); i++)
 			{
 				bBoundLine[i].r++;
-				if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) > threshold_val)
-				bottomBound = true;
-		}
+				if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) <= threshold_val)
+					bottomBound = false;
+			}	
+			/*for (int i = 0; i < bBoundLine.size(); i++)
+			{
+				if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) <= threshold_val)
+				{
+					bottomBound = false; 
+					break;
+				}
+			}*/
 			rBoundLine.push_back(bBoundLine.back());
 			lBoundLine.push_back(bBoundLine.front());
 		}
 		
 		while (leftBound == false)
 		{
+			leftBound = true;
 			// loop through left bound line positions and decrease column number by one. 
 			for (int i = 0; i < lBoundLine.size(); i++)
 			{
 				lBoundLine[i].c--;
-				if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) > threshold_val)
-				leftBound = true;
-		}
+				if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) <= threshold_val)
+					leftBound = false;
+			}
+		/*	for (int i = 0; i < lBoundLine.size(); i++)
+			{
+				if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) <= threshold_val)
+				{
+					leftBound = false;
+					break;
+				}	
+			}*/
 			tBoundLine.insert(tBoundLine.begin(), lBoundLine.front());
 			bBoundLine.insert(bBoundLine.begin(), lBoundLine.back());									
 		}
 
 		while (topBound == false)
 		{
+			topBound = true;
 			// loop through top bound line positions and decrease row number by one. 
 			for (int i = 0; i < tBoundLine.size(); i++)
 			{
 				(tBoundLine[i].r)--;
-				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) > threshold_val)
-				topBound = true;
+				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) <= threshold_val)
+					topBound = false;
 			}
+			/*for (int i = 0; i < tBoundLine.size(); i++)
+			{
+				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) <= threshold_val)
+				{
+					topBound = false;
+					break;
+				}		
+			}*/
 			rBoundLine.insert(rBoundLine.begin(), tBoundLine.back());
 			lBoundLine.insert(lBoundLine.begin(), tBoundLine.front());									  
 		}

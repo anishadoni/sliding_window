@@ -35,11 +35,10 @@ int main(int argc, char** argv)
 		modimage.at<uint8_t>(segment[i].r, segment[i].c) = 0;
 	}
 
-	//for (int i = 0; i < modimage.cols; i++)
-	//{
-	//	modimage.at<uint8_t>(212, i) = 0;
-	//}
-	
+	/*for (int i = 0; i < modimage.cols; i++)
+	{
+		modimage.at<uint8_t>(150, i) = 0;
+	}*/
 	imshow("Original", image);
 	imshow("Modified", modimage);
 
