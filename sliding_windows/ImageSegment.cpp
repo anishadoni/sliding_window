@@ -2,9 +2,11 @@
 #include <iostream>
 std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
 {
-	pos2d p1(0,0);
+	pos2d p1(0, 0);
 
 	std::vector<pos2d> segmentPos;
+
+	const int threshold_val = 12;
 
 	bool isBoxed = false;
 	bool rightBound = false;
@@ -21,8 +23,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	{
 		for (int c = 0; c < cols; c++)
 		{
-			// EDIT: add threshold value for "black"
-			if (img.at<uint8_t>(r, c) == 0)
+			if (img.at<uint8_t>(r, c) <= threshold_val)
 			{
 				p1.r = r;
 				p1.c = c;
@@ -36,57 +37,106 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	tBoundLine.push_back(p1);
 	bBoundLine.push_back(p1);
 
-	while (isBoxed = false)
+	while (isBoxed == false)
 	{
-		while (rightBound = false)
+		while (rightBound == false)
 		{							 
 			for (int i = 0; i < rBoundLine.size(); i++)
 			{
 				rBoundLine[i].c++;
-				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) == 0)
+				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) > threshold_val)
 					rightBound = true;
 			}
 			tBoundLine.push_back(rBoundLine.front());
 			bBoundLine.push_back(rBoundLine.back());									 
-			for (pos2d& d : rBoundLine)			  
-				d.c += 1;
 		}
-		while (bottomBound = false)
+
+		while (bottomBound == false)
 		{
-			//p2.r++;
-			if (img.at<uint8_t>(p2.r, p2.c) != 0)
-				bottomBound = true;
-			rBoundLine.push_back(pos2d(p2.r, rBoundLine[0].c));
-			lBoundLine.push_back(pos2d(p2.r, lBoundLine[0].c));
-			for (pos2d& d : bBoundLine)
-				d.r += 1;
+			for (int i = 0; i < bBoundLine.size(); i++)
+			{
+				bBoundLine[i].r++;
+				if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) > threshold_val)
+					bottomBound = true;
+			}
+			rBoundLine.push_back(bBoundLine.back());
+			lBoundLine.push_back(bBoundLine.front());
 		}
-		while (leftBound = false)
+		
+		while (leftBound == false)
 		{
-			//p3.c--;								  // move ref point one column to the right
-			if (img.at<uint8_t>(p3.r, p3.c) != 0) // if ref pixel is white, set rightBound to true
-				leftBound = true;
-			tBoundLine.insert(tBoundLine.begin(), pos2d (tBoundLine[0].r, p3.c));
-			bBoundLine.insert(bBoundLine.begin(), pos2d (bBoundLine[0].r, p3.c));									  // extend top bounding line by 1 column to the right
-			for (pos2d& d : lBoundLine)			  // move right bound line one column to the right
-				d.c -= 1;
+			for (int i = 0; i < lBoundLine.size(); i++)
+			{
+				lBoundLine[i].c--;
+				if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) > threshold_val)
+					leftBound = true;
+			}
+			tBoundLine.insert(tBoundLine.begin(), lBoundLine.front());
+			bBoundLine.insert(bBoundLine.begin(), lBoundLine.back());									
 		}
-		while (topBound = false)
+
+		while (topBound == false)
 		{
-			//p4.r--;								  // move ref point one column to the right
-			if (img.at<uint8_t>(p4.r, p4.c) != 0) // if ref pixel is white, set rightBound to true
-				topBound = true;
-			rBoundLine.insert(rBoundLine.begin(), pos2d(p4.r, rBoundLine[0].c));
-			lBoundLine.insert(lBoundLine.begin(), pos2d(p4.r, lBoundLine[0].c));									  // extend top bounding line by 1 column to the right
-			for (pos2d& d : tBoundLine)			  // move right bound line one column to the right
-				d.c -= 1;
+			for (int i = 0; i < tBoundLine.size(); i++)
+			{
+				(tBoundLine[i].r)--;
+				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) > threshold_val)
+					topBound = true;
+			}
+			rBoundLine.insert(rBoundLine.begin(), tBoundLine.back());
+			lBoundLine.insert(lBoundLine.begin(), tBoundLine.front());									  
+		}
+
+		for (int i = 0; i < rBoundLine.size(); i++)
+		{
+			if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) <= threshold_val)
+				rightBound = false;
+		}
+		for (int i = 0; i < bBoundLine.size(); i++)
+		{
+			if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) <= threshold_val)
+				bottomBound = false;
+		}
+		for (int i = 0; i < lBoundLine.size(); i++)
+		{
+			if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) <= threshold_val)
+				leftBound = false;
+		}
+		for (int i = 0; i < tBoundLine.size(); i++)
+		{
+			if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) <= threshold_val)
+				topBound = false;
 		}
 		if (rightBound && bottomBound && leftBound && rightBound == true)
 			isBoxed = true;
 	}
 
-	// std::cout << "(," << rBoundLine[0].r << "," << rBoundLine[0
-	segmentPos.reserve(rBoundLine.size() + bBoundLine.size() + lBoundLine.size() + tBoundLine.size());
+	// delete duplicate pixel values
+
+	rBoundLine.pop_back();
+	lBoundLine.pop_back();
+	rBoundLine.erase(rBoundLine.begin());
+	lBoundLine.erase(lBoundLine.begin());
+	std::cout << "(" << p1.r << "," << p1.c << ")" << std::endl;
+	for (int i = 0; i < rBoundLine.size(); i++)
+	{
+		std::cout << "(" << rBoundLine[i].r << "," << rBoundLine[i].c << ")" << std::endl;
+	}
+	for (int i = 0; i < bBoundLine.size(); i++)
+	{
+		std::cout << "(" << bBoundLine[i].r << "," << bBoundLine[i].c << ")" << std::endl;
+	}
+	for (int i = 0; i < lBoundLine.size(); i++)
+	{
+		std::cout << "(" << lBoundLine[i].r << "," << lBoundLine[i].c << ")" << std::endl;
+	}
+	for (int i = 0; i < tBoundLine.size(); i++)
+	{
+		std::cout << "(" << tBoundLine[i].r << "," << tBoundLine[i].c << ")" << std::endl;
+	}
+
+	
+	//segmentPos.reserve(rBoundLine.size() + bBoundLine.size() + lBoundLine.size() + tBoundLine.size());
 	segmentPos = rBoundLine;
 	segmentPos.insert(segmentPos.end(), bBoundLine.begin(), bBoundLine.end());
 	segmentPos.insert(segmentPos.end(), lBoundLine.begin(), lBoundLine.end());
