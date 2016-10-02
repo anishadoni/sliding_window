@@ -22,15 +22,18 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-
 	std::vector<pos2d> segment = genObjectSegment(modimage, modimage.rows, modimage.cols);
 	
-	for (int i = 0; i < sizeof(segment) / sizeof(pos2d); i ++)
+	for (int i = 0; i < segment.size(); i++)
 	{
-		std::cout << "(" << segment[i].r << "," << segment[i].c << ")" << std::endl;
-
+		modimage.at<uint8_t>(segment[i].r, segment[i].c) = 0;
 	}
 
+	//for (int i = 0; i < modimage.cols; i++)
+	//{
+	//	modimage.at<uint8_t>(212, i) = 0;
+	//}
+	
 	imshow("Original", image);
 	imshow("Modified", modimage);
 
