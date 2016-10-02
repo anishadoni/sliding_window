@@ -6,9 +6,9 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 
 	std::vector<pos2d> segmentPos;  // container for bounding box positions
 
-	const int threshold_val = 12;  // threshold value for pixel
+	const int threshold_val = 12;
 
-	bool isBoxed = false;			
+	bool isBoxed = false;
 	bool rightBound = false;
 	bool leftBound = false;
 	bool bottomBound = false;
