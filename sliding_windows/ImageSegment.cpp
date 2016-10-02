@@ -2,23 +2,24 @@
 #include <iostream>
 std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
 {
-	pos2d p1(0,0);
+	pos2d p1(0,0); // starting pixel for bounding box
 
-	std::vector<pos2d> segmentPos;
+	std::vector<pos2d> segmentPos;  // container for bounding box positions
 
-	const int threshold_val = 12;
+	const int threshold_val = 12;  // threshold value for pixel
 
-	bool isBoxed = false;
+	bool isBoxed = false;			
 	bool rightBound = false;
 	bool leftBound = false;
 	bool bottomBound = false;
 	bool topBound = false;
 
-	std::vector<pos2d> rBoundLine;
-	std::vector<pos2d> lBoundLine;
-	std::vector<pos2d> tBoundLine;
-	std::vector<pos2d> bBoundLine;
+	std::vector<pos2d> rBoundLine;		// container for right bouding line
+	std::vector<pos2d> lBoundLine;		// container for left bounding line
+	std::vector<pos2d> tBoundLine;		// container for bottom bounding line
+	std::vector<pos2d> bBoundLine;		// container for top bounding line
 
+	// iterate through image and set p1 to position first detected black pixel
 	for (int r = 0; r < rows; r++)
 	{
 		for (int c = 0; c < cols; c++)
@@ -32,15 +33,20 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		}
 	}
 
-	rBoundLine.push_back(p1); //Adds element at end of vector with value p1
+	// init each bound line with starting pixel
+	rBoundLine.push_back(p1); 
 	lBoundLine.push_back(p1);
 	tBoundLine.push_back(p1);
 	bBoundLine.push_back(p1);
 
+
+	// main loop for detecting if an object is segmented
 	while (isBoxed == false)
 	{
+		// if rightBound is not true
 		while (rightBound == false)
 		{							 
+			// loop through right bound line positions and increase column number by one. check to see if 
 			for (int i = 0; i < rBoundLine.size(); i++)
 			{
 				rBoundLine[i].c++;

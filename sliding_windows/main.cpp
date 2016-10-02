@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 		std::cout << "Could not open or find the original image" << std::endl;
 		return -1;
 	}
+
 	if (!modimage.data)
 	{
 		std::cout << "Could not open or find the mod image" << std::endl;
