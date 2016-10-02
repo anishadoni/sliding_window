@@ -2,7 +2,7 @@
 #include <iostream>
 std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
 {
-	pos2d p1(0, 0);
+	pos2d p1(0,0);
 
 	std::vector<pos2d> segmentPos;
 
@@ -32,7 +32,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		}
 	}
 
-	rBoundLine.push_back(p1);
+	rBoundLine.push_back(p1); //Adds element at end of vector with value p1
 	lBoundLine.push_back(p1);
 	tBoundLine.push_back(p1);
 	bBoundLine.push_back(p1);
@@ -57,8 +57,8 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			{
 				bBoundLine[i].r++;
 				if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) > threshold_val)
-					bottomBound = true;
-			}
+				bottomBound = true;
+		}
 			rBoundLine.push_back(bBoundLine.back());
 			lBoundLine.push_back(bBoundLine.front());
 		}
@@ -69,8 +69,8 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			{
 				lBoundLine[i].c--;
 				if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) > threshold_val)
-					leftBound = true;
-			}
+				leftBound = true;
+		}
 			tBoundLine.insert(tBoundLine.begin(), lBoundLine.front());
 			bBoundLine.insert(bBoundLine.begin(), lBoundLine.back());									
 		}
@@ -81,7 +81,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			{
 				(tBoundLine[i].r)--;
 				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) > threshold_val)
-					topBound = true;
+				topBound = true;
 			}
 			rBoundLine.insert(rBoundLine.begin(), tBoundLine.back());
 			lBoundLine.insert(lBoundLine.begin(), tBoundLine.front());									  
