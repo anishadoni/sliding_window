@@ -50,8 +50,6 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			for (int i = 0; i < rBoundLine.size(); i++)
 			{
 				rBoundLine[i].c++;
-				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) > threshold_val)
-					rightBound = true;
 			}
 			tBoundLine.push_back(rBoundLine.front());
 			bBoundLine.push_back(rBoundLine.back());									 
