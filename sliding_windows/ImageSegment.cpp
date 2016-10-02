@@ -5,6 +5,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	pos2d p1(0,0);
 
 	std::vector<pos2d> segmentPos;
+	
 
 	const int threshold_val = 12;
 
