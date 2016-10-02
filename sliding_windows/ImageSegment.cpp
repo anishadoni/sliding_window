@@ -46,7 +46,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		// if rightBound is not true
 		while (rightBound == false)
 		{							 
-			// loop through right bound line positions and increase column number by one. check to see if 
+			// loop through right bound line positions and increase column number by one. 
 			for (int i = 0; i < rBoundLine.size(); i++)
 			{
 				rBoundLine[i].c++;
@@ -57,6 +57,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 
 		while (bottomBound == false)
 		{
+			// loop through bottom bound line positions and increase row number by one. 
 			for (int i = 0; i < bBoundLine.size(); i++)
 			{
 				bBoundLine[i].r++;
@@ -69,6 +70,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		
 		while (leftBound == false)
 		{
+			// loop through left bound line positions and decrease column number by one. 
 			for (int i = 0; i < lBoundLine.size(); i++)
 			{
 				lBoundLine[i].c--;
@@ -81,6 +83,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 
 		while (topBound == false)
 		{
+			// loop through top bound line positions and decrease row number by one. 
 			for (int i = 0; i < tBoundLine.size(); i++)
 			{
 				(tBoundLine[i].r)--;
