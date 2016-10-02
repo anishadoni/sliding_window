@@ -2,7 +2,7 @@
 #include <iostream>
 std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
 {
-	pos2d p1(0,0);
+	pos2d p1(0,0); //first pixel
 
 	std::vector<pos2d> segmentPos;
 
@@ -31,7 +31,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 		}
 	}
 
-	rBoundLine.push_back(p1);
+	rBoundLine.push_back(p1); //Adds element at end of vector with value p1
 	lBoundLine.push_back(p1);
 	tBoundLine.push_back(p1);
 	bBoundLine.push_back(p1);
