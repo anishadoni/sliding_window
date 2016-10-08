@@ -3,6 +3,7 @@
 #include "Position.h"
 #include "ImageSegment.h"
 #include <stdint.h>
+#include <vector>
 #include <iostream>
 
 
@@ -13,8 +14,8 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	Mat image;
-	image = imread("testimg.jpg", IMREAD_GRAYSCALE);
-	Mat modimage = imread("testimg.jpg", IMREAD_GRAYSCALE);
+	image = imread("./testimg.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	Mat modimage = imread("./testimg.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 
 	if (!image.data)
 	{
@@ -28,17 +29,15 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	std::vector<pos2d> segment = genObjectSegment(modimage, modimage.rows, modimage.cols);
+	std::vector<pos2d> segment = genObjectSegment(modimage);
 	
 	for (int i = 0; i < segment.size(); i++)
 	{
 		modimage.at<uint8_t>(segment[i].r, segment[i].c) = 0;
 	}
 
-	/*for (int i = 0; i < modimage.cols; i++)
-	{
-		modimage.at<uint8_t>(150, i) = 0;
-	}*/
+	imwrite("./modimg.jpg", modimage);
+
 	imshow("Original", image);
 	imshow("Modified", modimage);
 

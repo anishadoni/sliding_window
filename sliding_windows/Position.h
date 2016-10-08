@@ -1,11 +1,11 @@
 #pragma once
-#include <stdint.h>
+
 
 struct pos2d{
-	uint16_t r;
-	uint16_t c;
+	int r;
+	int c;
 
-	pos2d(uint16_t row, uint16_t column)
+	pos2d(int  row, int  column)
 	{
 		r = row;
 		c = column;

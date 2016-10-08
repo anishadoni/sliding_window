@@ -1,12 +1,15 @@
 #include "ImageSegment.h"
+#include <stdint.h>
 #include <iostream>
-std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t cols)
+
+std::vector<pos2d> genObjectSegment(const cv::Mat& img)
 {
+	// pos2d 
 	pos2d p1(0,0); // starting pixel for bounding box
 
 	std::vector<pos2d> segmentPos;  // container for bounding box positions
 
-	const int threshold_val = 20;
+	const int threshold_val = 100;
 
 	bool isBoxed = false;
 	bool rightBound = false;
@@ -21,15 +24,16 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	std::vector<pos2d> tBoundLine;		// container for bottom bounding line
 	std::vector<pos2d> bBoundLine;		// container for top bounding line
 
+
 	// iterate through image and set p1 to position first detected black pixel
-	for (int r = 0; r < rows && !start; r++)
+	for (int a = 0; (!start) && (a < img.rows); a++)
 	{
-		for (int c = 0; c < cols && !start; c++)
+		for (int b = 0; (!start) && (b < img.cols); b++)
 		{
-			if (img.at<uint8_t>(r, c) <= threshold_val)
+			if (img.at<uint8_t>(a, b) <= threshold_val)
 			{
-				p1.r = r;
-				p1.c = c;
+				p1.r = a;
+				p1.c = b;
 				start = true;
 			}
 		}
@@ -52,7 +56,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			// loop through right bound line positions and increase column number by one. 
 			for (int i = 0; i < rBoundLine.size(); i++)  // EDIT: possibly make more efficient. 
 			{
-				(rBoundLine[i].c)++;
+				rBoundLine[i].c++;
 				if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) <= threshold_val)
 					rightBound = false;
 			}
@@ -118,7 +122,7 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			// loop through top bound line positions and decrease row number by one. 
 			for (int i = 0; i < tBoundLine.size(); i++)
 			{
-				(tBoundLine[i].r)--;
+				tBoundLine[i].r--;
 				if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) <= threshold_val)
 					topBound = false;
 			}
@@ -134,22 +138,22 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 			lBoundLine.insert(lBoundLine.begin(), tBoundLine.front());									  
 		}
 
-		for (int i = 0; i < rBoundLine.size(); i++)
+		for (int i = 0; i < rBoundLine.size() && rightBound == true; i++)
 		{
 			if (img.at<uint8_t>(rBoundLine[i].r, rBoundLine[i].c) <= threshold_val)
 				rightBound = false;
 		}
-		for (int i = 0; i < bBoundLine.size(); i++)
+		for (int i = 0; i < bBoundLine.size() && bottomBound == true; i++)
 		{
 			if (img.at<uint8_t>(bBoundLine[i].r, bBoundLine[i].c) <= threshold_val)
 				bottomBound = false;
 		}
-		for (int i = 0; i < lBoundLine.size(); i++)
+		for (int i = 0; i < lBoundLine.size() && leftBound == true; i++)
 		{
 			if (img.at<uint8_t>(lBoundLine[i].r, lBoundLine[i].c) <= threshold_val)
 				leftBound = false;
 		}
-		for (int i = 0; i < tBoundLine.size(); i++)
+		for (int i = 0; i < tBoundLine.size() && topBound == true; i++)
 		{
 			if (img.at<uint8_t>(tBoundLine[i].r, tBoundLine[i].c) <= threshold_val)
 				topBound = false;
@@ -192,3 +196,10 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img, uint16_t rows, uint16_t 
 	return segmentPos;
 }
 
+pos2d operator + (pos2d a, pos2d b)
+{
+	pos2d c(0, 0);
+	c.r = a.r + b.r;
+	c.c = a.c + b.c;
+	return c;
+}

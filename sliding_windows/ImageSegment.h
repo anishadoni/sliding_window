@@ -6,4 +6,5 @@
 #include <stdint.h>
 #include <vector>
 
-std::vector<pos2d> genObjectSegment(const cv::Mat &img, uint16_t rows, uint16_t cols);
+std::vector<pos2d> genObjectSegment(const cv::Mat &img);
+pos2d operator + (pos2d a, pos2d b);
