@@ -2,14 +2,12 @@
 #include <stdint.h>
 #include <iostream>
 
-std::vector<pos2d> genObjectSegment(const cv::Mat& img)
+std::vector<std::vector<pos2d>> genObjectSegment(const cv::Mat& img)
 {
 	// pos2d 
 	pos2d p1(0,0); // starting pixel for bounding box
 
-	std::vector<pos2d> segmentPos;  // container for bounding box positions
-
-	const int threshold_val = 100;
+	std::vector<std::vector<pos2d>> segmentPos;  // container for bounding box positions
 
 	bool isBoxed = false;
 	bool rightBound = false;
@@ -164,42 +162,72 @@ std::vector<pos2d> genObjectSegment(const cv::Mat& img)
 
 	// delete duplicate pixel values
 
-	rBoundLine.pop_back();
-	lBoundLine.pop_back();
-	rBoundLine.erase(rBoundLine.begin());
-	lBoundLine.erase(lBoundLine.begin());
-	std::cout << "(" << p1.r << "," << p1.c << ")" << std::endl;
-	for (int i = 0; i < rBoundLine.size(); i++)
-	{
-		std::cout << "(" << rBoundLine[i].r << "," << rBoundLine[i].c << ")" << std::endl;
-	}
-	for (int i = 0; i < bBoundLine.size(); i++)
-	{
-		std::cout << "(" << bBoundLine[i].r << "," << bBoundLine[i].c << ")" << std::endl;
-	}
-	for (int i = 0; i < lBoundLine.size(); i++)
-	{
-		std::cout << "(" << lBoundLine[i].r << "," << lBoundLine[i].c << ")" << std::endl;
-	}
-	for (int i = 0; i < tBoundLine.size(); i++)
-	{
-		std::cout << "(" << tBoundLine[i].r << "," << tBoundLine[i].c << ")" << std::endl;
-	}
-
-	
+	tBoundLine.pop_back();
+	bBoundLine.pop_back();
+	tBoundLine.erase(tBoundLine.begin());
+	bBoundLine.erase(bBoundLine.begin());
+		
 	//segmentPos.reserve(rBoundLine.size() + bBoundLine.size() + lBoundLine.size() + tBoundLine.size());
-	segmentPos = rBoundLine;
-	segmentPos.insert(segmentPos.end(), bBoundLine.begin(), bBoundLine.end());
-	segmentPos.insert(segmentPos.end(), lBoundLine.begin(), lBoundLine.end());
-	segmentPos.insert(segmentPos.end(), tBoundLine.begin(), tBoundLine.end());
+	segmentPos.push_back(rBoundLine);
+	segmentPos.push_back(bBoundLine);
+	segmentPos.push_back(lBoundLine);
+	segmentPos.push_back(tBoundLine);
+
 	
 	return segmentPos;
 }
 
-pos2d operator + (pos2d a, pos2d b)
+cv::Mat imageSegmentVecToMat(cv::Mat &img, std::vector<std::vector<pos2d>> segments)
 {
-	pos2d c(0, 0);
-	c.r = a.r + b.r;
-	c.c = a.c + b.c;
-	return c;
+	std::vector<pos2d> lBound;
+	std::vector<pos2d> tBound;
+	
+	for (int i = 0; i < segments[2].size(); i++)
+	{
+		lBound.push_back(segments[2][i]);
+	}
+	for (int i = 0; i < segments[3].size(); i++)
+	{
+		tBound.push_back(segments[3][i]);
+	}
+
+	cv::Mat segImage((lBound.size() - 2), tBound.size(), CV_8UC1);	// create Mat container for segmented image
+
+	for (int j = 0; j < segImage.rows; j++)
+	{
+		for (int k = 0; k < segImage.cols; k++)
+		{
+			segImage.at<uint8_t>(j,k) = img.at<uint8_t>((tBound[0].r + j + 1), ((lBound[0]).c + k +1));
+			img.at<uint8_t>((tBound[0].r + j + 1), ((lBound[0]).c + k + 1)) = 255;
+		}
+	}
+
+		
+	return segImage;
+}
+
+std::vector<cv::Mat> genImageSegments(cv::Mat &img)
+{														
+														  // holds segment positions of each image
+	std::vector<cv::Mat> imgMat;						  // holds each segment as an image
+	bool isSegmented = false;
+														  // counter to keep track of segments in each the image
+	while (isSegmented == false)
+	{
+		isSegmented = true;
+		imgMat.push_back(imageSegmentVecToMat(img, genObjectSegment(img)));
+
+		for (int a = 0; (isSegmented==true) && a < img.rows; a++)
+		{
+			for (int b = 0; (isSegmented==true) && b < img.cols; b++)
+			{
+				if (img.at<uint8_t>(a, b) <= threshold_val)
+				{
+					isSegmented = false;
+				}
+			}
+		}
+	}
+	
+	return imgMat;
 }

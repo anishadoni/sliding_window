@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <vector>
 #include <iostream>
+#include <string>
 
 
 using namespace cv;
@@ -29,17 +30,17 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	std::vector<pos2d> segment = genObjectSegment(modimage);
-	
-	for (int i = 0; i < segment.size(); i++)
-	{
-		modimage.at<uint8_t>(segment[i].r, segment[i].c) = 0;
-	}
-
-	imwrite("./modimg.jpg", modimage);
-
+	std::vector<cv::Mat> imageSegments = genImageSegments(modimage);
+	cout << imageSegments.size() << endl;
 	imshow("Original", image);
-	imshow("Modified", modimage);
+	for (int i = 0; i < imageSegments.size(); i++)
+	{
+		imshow("Image Segment", imageSegments[i]);
+	}
+	
+	imwrite("imgseg1.jpg", imageSegments[0]);
+	imwrite("imgseg2.jpg", imageSegments[1]);
+	imwrite("imgseg3.jpg", imageSegments[2]);
 
 	waitKey(0); // Wait for a keystroke in the window
 	return 0;
